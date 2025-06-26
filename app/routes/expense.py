@@ -181,7 +181,6 @@ def export_salary_expenses(
         headers={"Content-Disposition": "attachment; filename=salary_expenses_export.csv"}
     )
 
-
 @router.get("/salary/{expense_id}", response_model=SalaryExpenseOut)
 def get_salary_by_id(
         expense_id: int,
