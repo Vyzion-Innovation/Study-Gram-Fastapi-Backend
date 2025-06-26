@@ -219,54 +219,54 @@ def get_students_with_pending_fees_last_month(
     return sqlalchemy_paginate(query)
 
 
-
-@router.get("/monthly-profit")
-def get_monthly_profit_data(db: Session = Depends(get_db)):
-    try:
-        today = datetime.today()
-        results = []
-
-        for i in range(6):
-            # Calculate the first and last date of the month
-            target_month = today.replace(day=1) - timedelta(days=30 * i)
-            year = target_month.year
-            month = target_month.month
-
-            # === INCOME ===
-            income = db.query(func.coalesce(func.sum(Transaction.amount_paid), 0))\
-                .filter(
-                    extract('year', Transaction.payment_date) == year,
-                    extract('month', Transaction.payment_date) == month
-                ).scalar()
-
-            # === BASIC EXPENSES ===
-            basic_expense = db.query(func.coalesce(func.sum(BasicExpense.amount), 0))\
-                .filter(
-                    extract('year', BasicExpense.expense_date) == year,
-                    extract('month', BasicExpense.expense_date) == month
-                ).scalar()
-
-            # === SALARY EXPENSES ===
-            salary_expense = db.query(func.coalesce(func.sum(SalaryExpense.salary_amount), 0))\
-                .filter(
-                    extract('year', SalaryExpense.salary_date) == year,
-                    extract('month', SalaryExpense.salary_date) == month
-                ).scalar()
-
-            total_expense = basic_expense + salary_expense
-            profit = income - total_expense
-
-            results.append({
-                "month": target_month.strftime("%B %Y"),
-                "income": income,
-                "expense": total_expense,
-                "profit": profit
-            })
-
-        # Reverse to show from oldest to latest
-        results.reverse()
-
-        return {"data": results}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch analytics: {str(e)}")
+#
+# @router.get("/monthly-profit")
+# def get_monthly_profit_data(db: Session = Depends(get_db)):
+#     try:
+#         today = datetime.today()
+#         results = []
+#
+#         for i in range(6):
+#             # Calculate the first and last date of the month
+#             target_month = today.replace(day=1) - timedelta(days=30 * i)
+#             year = target_month.year
+#             month = target_month.month
+#
+#             # === INCOME ===
+#             income = db.query(func.coalesce(func.sum(Transaction.amount_paid), 0))\
+#                 .filter(
+#                     extract('year', Transaction.payment_date) == year,
+#                     extract('month', Transaction.payment_date) == month
+#                 ).scalar()
+#
+#             # === BASIC EXPENSES ===
+#             basic_expense = db.query(func.coalesce(func.sum(BasicExpense.amount), 0))\
+#                 .filter(
+#                     extract('year', BasicExpense.expense_date) == year,
+#                     extract('month', BasicExpense.expense_date) == month
+#                 ).scalar()
+#
+#             # === SALARY EXPENSES ===
+#             salary_expense = db.query(func.coalesce(func.sum(SalaryExpense.salary_amount), 0))\
+#                 .filter(
+#                     extract('year', SalaryExpense.salary_date) == year,
+#                     extract('month', SalaryExpense.salary_date) == month
+#                 ).scalar()
+#
+#             total_expense = basic_expense + salary_expense
+#             profit = income - total_expense
+#
+#             results.append({
+#                 "month": target_month.strftime("%B %Y"),
+#                 "income": income,
+#                 "expense": total_expense,
+#                 "profit": profit
+#             })
+#
+#         # Reverse to show from oldest to latest
+#         results.reverse()
+#
+#         return {"data": results}
+#
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to fetch analytics: {str(e)}")
