@@ -13,7 +13,7 @@ from app.models.expense import BasicExpense, SalaryExpense
 from app.models.expense import BasicExpense, SalaryExpense
 from .student_attendance import StudentAttendance
 from .teacher_attendance import TeacherAttendance
-# from app.database.base_class import Base
+from app.database.base_class import Base
 
 
 __all__ = [
