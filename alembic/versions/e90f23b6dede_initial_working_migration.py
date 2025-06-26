@@ -1,8 +1,8 @@
-"""create pte_students table
+"""initial working migration
 
-Revision ID: abdac0e510f6
-Revises: 31acfde27d9f
-Create Date: 2025-06-18 11:40:55.552610
+Revision ID: e90f23b6dede
+Revises: 
+Create Date: 2025-06-26 16:24:47.979838
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'abdac0e510f6'
-down_revision: Union[str, None] = '31acfde27d9f'
+revision: str = 'e90f23b6dede'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
