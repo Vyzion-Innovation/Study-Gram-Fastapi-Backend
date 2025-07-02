@@ -1,3 +1,5 @@
+from urllib import response
+
 from fastapi_pagination import Page
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import SQLAlchemyError
@@ -8,10 +10,12 @@ from app.core.security import get_hashed_password, verify_password
 from app.auth.jwt_handler import create_access_token
 from app.database.session import get_db
 from fastapi_pagination.ext.sqlalchemy import paginate as sqlalchemy_paginate
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect, func
-from sqlalchemy import text
+
+from fastapi import Response
+
 from app.models import (
     User,
     StudentAttendance,
@@ -54,10 +58,14 @@ def create_user(user: UserCreate = Depends(UserCreate.as_form), db: Session = De
     return new_user
 
 
+
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.password):
+def login(
+    user_credentials: UserLogin = Depends(UserLogin.as_form),  # ✅ this line matters
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.email == user_credentials.email).first()
+    if not user or not verify_password(user_credentials.password, user.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
@@ -65,10 +73,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 
 @router.get("/users/managers", response_model=Page[UserOut], dependencies=[Depends(get_admin_user)])
-def get_managers(db: Session = Depends(get_db)):
+def get_managers(
+    search: str = Query(None),
+    db: Session = Depends(get_db)
+):
     query = db.query(User).filter(User.role == "manager")
-    return sqlalchemy_paginate(query)
 
+    if search:
+        query = query.filter(User.name.ilike(f"%{search}%"))
+
+    return sqlalchemy_paginate(query)
 
 @router.delete("/users/{user_id}")
 def delete_user(
@@ -124,3 +138,12 @@ def delete_all_except_admin(
     except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error deleting data: {str(e)}")
+
+@router.post("/logout")
+def logout(response: Response):
+    """
+    Basic logout endpoint. Client should delete token manually on frontend.
+    """
+    # Optionally, you can clear a cookie if using cookie-based auth
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}

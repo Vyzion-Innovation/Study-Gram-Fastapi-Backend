@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
+from app.routes import swagger_auth
 
 from app.database.config import Base, engine
 from app.routes import (
@@ -31,6 +32,7 @@ app.include_router(expense.router)
 app.include_router(student_attendance.router)
 app.include_router(teacher_attendance.router)
 app.include_router(dashboard.router)
+app.include_router(swagger_auth.router)
 
 # ✅ Add pagination support
 add_pagination(app)
