@@ -11,7 +11,7 @@ from app.auth.jwt_handler import create_access_token
 from app.database.session import get_db
 from fastapi_pagination.ext.sqlalchemy import paginate as sqlalchemy_paginate
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import inspect, func
 
 from fastapi import Response
@@ -41,13 +41,15 @@ router = APIRouter()
 
 @router.post("/users/create", response_model=UserOut, dependencies=[Depends(get_admin_user)])
 def create_user(user: UserCreate = Depends(UserCreate.as_form), db: Session = Depends(get_db)):
+    # ✅ Check if email already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    # ✅ Create new user
     hashed_password = get_hashed_password(user.password)
     new_user = User(
-        name=user.name,  # ✅ Include name
+        name=user.name,
         email=user.email,
         password=hashed_password,
         role=user.role.lower()
@@ -55,7 +57,24 @@ def create_user(user: UserCreate = Depends(UserCreate.as_form), db: Session = De
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+
+    # ✅ Create associated profile (other fields will default to "")
+    new_profile = Profile(
+        name=new_user.name,
+        email=new_user.email,
+        role=new_user.role,
+        user_id=new_user.id
+    )
+    db.add(new_profile)
+    db.commit()
+
+    # ✅ Reload user with profile relationship
+    user_with_profile = db.query(User)\
+        .options(joinedload(User.profile))\
+        .filter(User.id == new_user.id)\
+        .first()
+
+    return user_with_profile
 
 
 

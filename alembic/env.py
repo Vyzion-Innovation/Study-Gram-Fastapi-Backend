@@ -1,15 +1,15 @@
 from logging.config import fileConfig
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Connection
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import create_engine, pool
 import os
 
 from alembic import context
-from app.database.config import Base
-# ✅ include all models here
-from app.models import *  # ✅ This will now include all models
 
+# ✅ Load environment variables from .env
+from dotenv import load_dotenv
+load_dotenv()
+
+from app.database.config import Base
+from app.models import *  # ✅ Import all models here
 
 # Alembic Config
 config = context.config
