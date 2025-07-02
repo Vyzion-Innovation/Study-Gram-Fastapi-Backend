@@ -65,6 +65,10 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
+##run migrations 
+
+alembic upgrade head
+
 ## to run 
 uvicorn app.main:app --reload
 
