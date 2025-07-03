@@ -82,21 +82,21 @@ def get_student_count_by_batch_id(
     }
 
 
-# @router.put("/batches/{batch_id}", response_model=schemas.BatchOut)
-# def update_batch(
-#     batch_id: int,
-#     batch: schemas.BatchUpdate,
-#     db: Session = Depends(get_db),
-#     _: str = Depends(get_admin_user)
-# ):
-#     db_batch = db.query(models.Batch).filter(models.Batch.id == batch_id).first()
-#     if not db_batch:
-#         raise HTTPException(status_code=404, detail="Batch not found")
-#     for key, value in batch.dict(exclude_unset=True).items():
-#         setattr(db_batch, key, value)
-#     db.commit()
-#     db.refresh(db_batch)
-#     return db_batch
+@router.put("/batches/{batch_id}", response_model=schemas.BatchOut)
+def update_batch(
+    batch_id: int,
+    batch: schemas.BatchUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(get_admin_user)
+):
+    db_batch = db.query(models.Batch).filter(models.Batch.id == batch_id).first()
+    if not db_batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    for key, value in batch.dict(exclude_unset=True).items():
+        setattr(db_batch, key, value)
+    db.commit()
+    db.refresh(db_batch)
+    return db_batch
 
 
 @router.post("/courses/", response_model=schemas.CourseOut)
