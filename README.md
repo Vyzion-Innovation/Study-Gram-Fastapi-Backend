@@ -75,3 +75,4 @@ uvicorn app.main:app --reload
 ## to run on server continously
 
 nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 & 
+setup github action to auto deploy
