@@ -27,7 +27,7 @@ jobs:
           cd /root/studygram-api
 
           echo "📦 Pulling latest code..."
-          git pull origin main
+          git pull origin development
 
           echo "🐍 Activating virtual environment..."
           source venv/bin/activate
