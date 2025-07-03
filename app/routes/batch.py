@@ -27,23 +27,23 @@ def create_batch(
     return new_batch
 
 
-@router.get("/batches/", response_model=Page[BatchOut])
-def get_batches(
-    sort_order: Literal["asc", "desc"] = Query("desc"),
-    search: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
-    _: str = Depends(get_admin_user)
-):
-    query = db.query(Batch)
-
-    if search:
-        query = query.filter(Batch.name.ilike(f"%{search}%"))
-
-    query = query.order_by(
-        asc(Batch.created_at) if sort_order == "asc" else desc(Batch.created_at)
-    )
-
-    return sqlalchemy_paginate(query)
+# @router.get("/batches/", response_model=Page[BatchOut])
+# def get_batches(
+#     sort_order: Literal["asc", "desc"] = Query("desc"),
+#     search: Optional[str] = Query(None),
+#     db: Session = Depends(get_db),
+#     _: str = Depends(get_admin_user)
+# ):
+#     query = db.query(Batch)
+#
+#     if search:
+#         query = query.filter(Batch.name.ilike(f"%{search}%"))
+#
+#     query = query.order_by(
+#         asc(Batch.created_at) if sort_order == "asc" else desc(Batch.created_at)
+#     )
+#
+#     return sqlalchemy_paginate(query)
 
 
 @router.get("/batches/{batch_id}", response_model=BatchOut)
