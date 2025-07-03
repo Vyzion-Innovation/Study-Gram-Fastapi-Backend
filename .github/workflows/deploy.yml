@@ -1,0 +1,43 @@
+name: Deploy FastAPI to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H 37.27.200.171 >> ~/.ssh/known_hosts
+
+    - name: Deploy to server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@37.27.200.171 << 'EOF'
+          set -e  # Stop on error
+          cd /root/studygram-api
+
+          echo "📦 Pulling latest code..."
+          git pull origin main
+
+          echo "🐍 Activating virtual environment..."
+          source venv/bin/activate
+
+          echo "📦 Installing requirements..."
+          pip install -r requirements.txt
+
+          echo "🗃️ Running database migrations..."
+          alembic upgrade head
+
+           fuser -k 8000/tcp || true  # Kill existing process on port 8000 if any
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > output.log 2>&1 &
+        EOF
