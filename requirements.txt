@@ -4,7 +4,7 @@ anyio==4.9.0
 bcrypt==4.3.0
 click==8.2.1
 dnspython==2.7.0
-ecdsa==0.19.1
+ecdsa==0.19.2
 email_validator==2.2.0
 fastapi==0.115.12
 fastapi-pagination==0.13.3
